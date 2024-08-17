@@ -6,6 +6,9 @@ import Layout from "./components/Layout/Layout";
 import Products from "./components/Shop/Products";
 import Notification from "./components/UI/Notification";
 import { uiActions } from "./store/uiSlice";
+import { sendCartData } from "./store/cartSlice";
+
+let initial = true;
 
 function App() {
   const dispatch = useDispatch();
@@ -13,42 +16,11 @@ function App() {
   const notification = useSelector((state) => state.ui.notification);
 
   useEffect(() => {
-    const sendCartData = async () => {
-      dispatch(
-        uiActions.showNotification({
-          status: "Pending",
-          title: "Updating",
-          message: "",
-        })
-      );
-      const response = await fetch(
-        "https://redux-adv-demo-default-rtdb.asia-southeast1.firebasedatabase.app/cart.json",
-        {
-          method: "PUT",
-          body: JSON.stringify(cart),
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed sending data to db");
-      }
-      dispatch(
-        uiActions.showNotification({
-          status: "success",
-          title: "Success",
-          message: "Data update successful",
-        })
-      );
-    };
-
-    sendCartData().catch((error) => {
-      dispatch(
-        uiActions.showNotification({
-          status: "error",
-          title: "Error",
-          message: "Data update failed in DB",
-        })
-      );
-    });
+    if (initial) {
+      initial = false;
+      return;
+    }
+    dispatch(sendCartData(cart));
   }, [cart]);
 
   return (

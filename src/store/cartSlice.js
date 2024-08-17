@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { uiActions } from "./uiSlice";
 
 const initialCartState = {
   items: [],
@@ -44,6 +45,49 @@ const cartSlice = createSlice({
     },
   },
 });
+
+// This is a thunk
+export const sendCartData = (cart) => {
+  return async (dispatch) => {
+    dispatch(
+      uiActions.showNotification({
+        status: "Pending",
+        title: "Updating",
+        message: "",
+      })
+    );
+    const sendRequest = async () => {
+      const response = await fetch(
+        "https://redux-adv-demo-default-rtdb.asia-southeast1.firebasedatabase.app/cart.json",
+        {
+          method: "PUT",
+          body: JSON.stringify(cart),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed sending data to db");
+      }
+      dispatch(
+        uiActions.showNotification({
+          status: "success",
+          title: "Success",
+          message: "Data update successful",
+        })
+      );
+    };
+    try {
+      await sendRequest();
+    } catch (error) {
+      dispatch(
+        uiActions.showNotification({
+          status: "error",
+          title: "Error",
+          message: "Data update Failed",
+        })
+      );
+    }
+  };
+};
 
 export const cartActions = cartSlice.actions;
 export default cartSlice.reducer;
