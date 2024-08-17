@@ -3,7 +3,6 @@ import { uiActions } from "./uiSlice";
 
 const initialCartState = {
   items: [],
-  showCart: true,
 };
 const cartSlice = createSlice({
   name: "cart",
@@ -42,6 +41,9 @@ const cartSlice = createSlice({
           existingItem.totalPrice -= existingItem.price;
         }
       }
+    },
+    createCart(state, action) {
+      state.items = action.payload.items;
     },
   },
 });
@@ -83,6 +85,40 @@ export const sendCartData = (cart) => {
           status: "error",
           title: "Error",
           message: "Data update Failed",
+        })
+      );
+    }
+  };
+};
+export const fetchCartData = () => {
+  return async (dispatch) => {
+    const fetchData = async () => {
+      dispatch(
+        uiActions.showNotification({
+          status: "Pending",
+          title: "Fetching",
+          message: "",
+        })
+      );
+      const response = await fetch(
+        "https://redux-adv-demo-default-rtdb.asia-southeast1.firebasedatabase.app/cart.json"
+      );
+      if (!response.ok) {
+        throw new Error("Could not fetch cart data");
+      }
+      const data = await response.json();
+      console.log(data);
+      return data;
+    };
+    try {
+      const data = await fetchData();
+      dispatch(cartActions.createCart(data));
+    } catch (error) {
+      dispatch(
+        uiActions.showNotification({
+          status: "error",
+          title: "Error",
+          message: "Data fetch Failed",
         })
       );
     }
