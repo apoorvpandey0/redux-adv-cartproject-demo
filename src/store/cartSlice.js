@@ -27,9 +27,6 @@ const cartSlice = createSlice({
         console.log(existingItem.totalPrice);
       }
     },
-    toggleShow(state) {
-      state.showCart = !state.showCart;
-    },
     removeItem(state, action) {
       const existingItem = state.items.find(
         (item) => item.id === action.payload.id
